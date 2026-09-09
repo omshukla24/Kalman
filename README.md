@@ -1,11 +1,11 @@
 # 🎬 KALMAN CINEMA (House of Asura)
 ### Autonomous Broadcast Reliability Command Deck, SRE Incident Engine & Living Creature Sanctuary
 
-[![Google Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-Live%20Production-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://kalman-912520530444.us-central1.run.app/)
-[![Gemini 1.5 Pro](https://img.shields.io/badge/AI%20Core-Gemini%20Pro%20(Vertex%20AI)-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://cloud.google.com/vertex-ai)
-[![Grafana Cloud MCP](https://img.shields.io/badge/Partner-Grafana%20Cloud%20MCP-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
-[![Tests](https://img.shields.io/badge/Pytest-68%2F68%20Passed%20(100%25)-10B981?style=for-the-badge&logo=pytest&logoColor=white)](#-reproducible-testing-instructions)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
+![Google Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-Serverless%20Fleet-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
+![Gemini 1.5 Pro](https://img.shields.io/badge/AI%20Core-Gemini%20Pro%20(Vertex%20AI)-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Grafana Cloud MCP](https://img.shields.io/badge/Partner-Grafana%20Cloud%20MCP-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Tests](https://img.shields.io/badge/Pytest-68%2F68%20Passed%20(100%25)-10B981?style=for-the-badge&logo=pytest&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
 > *"The most expensive 90 seconds in entertainment is a buffering wheel during the live finale. KALMAN CINEMA is the autonomous crew that stands the watch."*
 
@@ -16,17 +16,6 @@
 **KALMAN CINEMA** is an autonomous broadcast-reliability command deck built for the **Google Cloud Agentic Cinema Hackathon (Grafana Labs Partner Track)**. It eliminates the dreaded "first hour of NOC panic" during live 4K broadcasts by fusing **deterministic sub-millisecond Kalman 1D residual innovation filtering** with **deep reasoning agents powered by Google Gemini Pro (Vertex AI ADK)** and real-time observability via the **Grafana Cloud MCP server**.
 
 When multi-region broadcast telemetry spikes, KALMAN isolates the anomaly in **<0.05 milliseconds**, queries Grafana gateway metrics and logs, synthesizes a grounded root cause with cryptographic query citations, enforces strict **Human-in-the-Loop (HITL)** governance, and executes automated or operator-authorized destructive failovers.
-
----
-
-## 🌐 Live Production Links
-
-* **Live Cloud Run Deployment**: [https://kalman-912520530444.us-central1.run.app/](https://kalman-912520530444.us-central1.run.app/)
-* **Robots Manifest**: [https://kalman-912520530444.us-central1.run.app/robots.txt](https://kalman-912520530444.us-central1.run.app/robots.txt)
-* **Sitemap Manifest**: [https://kalman-912520530444.us-central1.run.app/sitemap.xml](https://kalman-912520530444.us-central1.run.app/sitemap.xml)
-* **Prometheus Metrics Endpoint**: [https://kalman-912520530444.us-central1.run.app/metrics](https://kalman-912520530444.us-central1.run.app/metrics)
-* **Open Source Repository**: [https://github.com/omshukla24/Kalman](https://github.com/omshukla24/Kalman)
-* **Demo Video Walkthrough**: [https://youtu.be/xwO9ksmPC5A](https://youtu.be/xwO9ksmPC5A)
 
 ---
 
@@ -367,9 +356,9 @@ tests/test_version_lineage.py ..                                         [100%]
 
 ## 📜 License & Author
 
-* **Author**: [Om Shukla](https://github.com/omshukla24) (`omshukla24`)
+* **Author**: Om Shukla (`omshukla24`)
 * **Project**: KALMAN CINEMA (House of Asura)
 * **Contest**: Google Cloud Agentic Cinema Hackathon — Grafana Labs Partner Track
-* **License**: [MIT License](./LICENSE)
+* **License**: MIT License
 
 *The watch stands.*
