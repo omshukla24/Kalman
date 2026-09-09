@@ -509,7 +509,7 @@ const CREATURE_DEFS = {
     title: "Core Signal Familiar",
     color: "#0284c7",
     cardId: "creature-hero-kalman",
-    targetSelector: ".mission-grid",
+    targetSelector: "#tile-5xx_error_rate, .panel-telemetry, .mission-grid",
     highlightClass: "creature-work-pulse",
     sound: "success",
     defaultSpeech: "Twin receivers locked at 48kHz. Telemetry innovation filter nominal.",
@@ -609,22 +609,43 @@ function flyCreatureTo(type, customSpeech = null) {
   const stage = document.getElementById("creature-flight-stage");
   if (!stage) return;
 
-  // Prevent multiple simultaneous flights of the same creature
-  if (stage.querySelector(`.flying-${type}`)) return;
+  // Prevent multiple simultaneous flights of the same creature, or clear stale flyer
+  const existing = stage.querySelector(`.flying-${type}`);
+  if (existing) {
+    if (Date.now() - (existing._spawnTime || 0) > 3200) {
+      existing.remove();
+    } else {
+      return; // actively flying
+    }
+  }
 
   playSound(def.sound || "click");
 
-  // Determine start position
+  // Determine start position (viewport-clamped so creature is always visible)
   const homeCard = document.getElementById(def.cardId) || document.querySelector(".sanctuary-avatar-box");
-  const homeRect = homeCard ? homeCard.getBoundingClientRect() : { left: 100, top: 100, width: 50, height: 50 };
-  const startX = homeRect.left + homeRect.width / 2 - 27;
-  const startY = homeRect.top + homeRect.height / 2 - 27;
+  let startX = 140, startY = 220;
+  if (homeCard) {
+    const hr = homeCard.getBoundingClientRect();
+    if (hr.width > 0 && hr.height > 0) {
+      startX = hr.left + hr.width / 2 - 27;
+      startY = hr.top + hr.height / 2 - 27;
+    }
+  }
+  startX = Math.max(20, Math.min(window.innerWidth - 74, startX));
+  startY = Math.max(30, Math.min(window.innerHeight - 80, startY));
 
-  // Determine target position
+  // Determine target position (viewport-clamped)
   const targetEl = document.querySelector(def.targetSelector);
-  const targetRect = targetEl ? targetEl.getBoundingClientRect() : { left: window.innerWidth * 0.6, top: 300, width: 200, height: 200 };
-  const targetX = targetRect.left + targetRect.width / 2 - 27;
-  const targetY = targetRect.top + Math.min(120, targetRect.height / 2) - 27;
+  let targetX = window.innerWidth * 0.65, targetY = window.innerHeight * 0.45;
+  if (targetEl) {
+    const tr = targetEl.getBoundingClientRect();
+    if (tr.width > 0 && tr.height > 0) {
+      targetX = tr.left + tr.width / 2 - 27;
+      targetY = tr.top + Math.min(140, tr.height / 2) - 27;
+    }
+  }
+  targetX = Math.max(40, Math.min(window.innerWidth - 80, targetX));
+  targetY = Math.max(60, Math.min(window.innerHeight - 120, targetY));
 
   // Visual compression on home card
   if (homeCard) {
@@ -634,13 +655,15 @@ function flyCreatureTo(type, customSpeech = null) {
 
   // Create flyer
   const flyer = document.createElement("div");
+  flyer._spawnTime = Date.now();
   flyer.className = `flying-creature-sprite flying-${type}`;
   flyer.innerHTML = `<div class="flying-creature-inner">${def.svg}</div>`;
   stage.appendChild(flyer);
+  setTimeout(() => { if (flyer.parentNode) flyer.remove(); }, 6000);
 
-  // Bezier trajectory control point (arched upward into the sky)
+  // Bezier trajectory control point (arched upward into the sky, never offscreen)
   const midX = (startX + targetX) / 2;
-  const midY = Math.min(startY, targetY) - 130;
+  const midY = Math.max(20, Math.min(startY, targetY) - 120);
 
   // Animation timing
   const flightDuration = 720;
@@ -1215,6 +1238,17 @@ function handleAnomaly(a) {
   const cleanVal = Number(a.value || 0).toFixed(3);
   logEvent(`ANOMALY DETECTED: ${a.signal.replace(/_/g, " ").toUpperCase()}`, `Innovation z-score ${formattedZ} breached adaptive Kalman gate (measured: ${cleanVal}).`, "hot");
   logCrew("watcher", `Innovation threshold breached: ${a.signal} z=${formattedZ} [${a.severity || 'P2'}]`);
+
+  // Launch familiar flight response to live statistical breaches
+  if (a && Math.abs(Number(a.z || 0)) >= 3.0) {
+    if (a.signal === "5xx_error_rate" || a.signal === "rebuffer_ratio") {
+      flyCreatureTo("flux", `🌊 Auto-triage: Rerouting ${a.signal.replace(/_/g, ' ')}!`);
+    } else if (a.signal === "av_sync_offset_ms") {
+      flyCreatureTo("chrono", "⏱️ Realignment locked! Audio phase & PTS synchronized.");
+    } else {
+      flyCreatureTo("kalman", `⚠️ Residual spike: z=${formattedZ}`);
+    }
+  }
 }
 
 function handleDiagnosis(d) {
@@ -1619,6 +1653,7 @@ async function executeDragonIncineration(targetSelector = ".panel-regions", targ
 async function triggerDestructiveFailoverGate() {
   playSound("alarm");
   showToast("⚠️ Destructive failover requested: Operator authorization required!", "warn");
+  dispatchScenarioCreatures("destructive_failover");
 
   let data = null;
   try {
@@ -1831,11 +1866,106 @@ function renderPostmortemFeed() {
   }).join("");
 }
 
+// --- Cinematic Familiar Response & Scenario Dispatch ---
+function flashSignalTile(signalName) {
+  const t = state.tiles[signalName] || document.getElementById(`tile-${signalName}`);
+  if (t) {
+    t.classList.add("hot", "creature-work-pulse");
+    const zBadge = t.querySelector(".sig-z-badge");
+    if (zBadge) {
+      zBadge.textContent = "z: +3.85";
+      zBadge.classList.add("firing");
+    }
+    setTimeout(() => {
+      t.classList.remove("hot", "creature-work-pulse");
+      if (zBadge) zBadge.classList.remove("firing");
+    }, 9000);
+  }
+}
+
+function dispatchScenarioCreatures(scenario) {
+  switch (scenario) {
+    case "cdn_meltdown":
+      flashSignalTile("5xx_error_rate");
+      flyCreatureTo("kalman", "⚠️ 5xx Error Spike! Innovation z > 3.5 on us-west!");
+      setTimeout(() => {
+        flyCreatureTo("flux", "🌊 Rerouting us-west! Diverting 80% traffic away from failed CDN!");
+      }, 350);
+      setTimeout(() => {
+        flyCreatureTo("warden", "🛡️ Runic barrier raised: High-risk failovers held behind HITL gate!");
+      }, 750);
+      break;
+
+    case "origin_bombing":
+      flashSignalTile("5xx_error_rate");
+      flyCreatureTo("warden", "🛡️ Ingress origin saturated! Tripping Sentinel BGP failover!");
+      setTimeout(() => {
+        flyCreatureTo("flux", "🌊 Rerouting video ingress to auxiliary backup cluster!");
+      }, 350);
+      setTimeout(() => {
+        flyCreatureTo("kalman", "⚠️ Ingress frame rate breach: Innovation z > 4.0!");
+      }, 700);
+      break;
+
+    case "transcoder_drop":
+    case "transcoder_skew":
+      flashSignalTile("av_sync_offset_ms");
+      flyCreatureTo("chrono", "⏱️ Frame drop & PTS skew detected! Phase locking to ±0.0ms!");
+      setTimeout(() => {
+        flyCreatureTo("kalman", "📡 Realigning 48kHz audio cadence and GOP structure.");
+      }, 400);
+      break;
+
+    case "backbone_sever":
+      flashSignalTile("packet_loss_pct");
+      flyCreatureTo("flux", "⚡ Transpacific fiber severed! BGP rerouting stream to Singapore edge!");
+      setTimeout(() => {
+        flyCreatureTo("warden", "🛡️ Multi-CDN route table validated: Zero broadcast blackouts.");
+      }, 400);
+      break;
+
+    case "loudness_spike":
+      flashSignalTile("audio_loudness_lufs");
+      flyCreatureTo("chrono", "📢 +18 LUFS loudness storm! Clamping DSP limiter to -24 LKFS!");
+      setTimeout(() => {
+        flyCreatureTo("scribble", "🦉 Recording EBU R128 compliance certificate to audit log.");
+      }, 400);
+      break;
+
+    case "rebuffer_spike":
+      flashSignalTile("rebuffer_ratio");
+      flyCreatureTo("flux", "⚡ Rebuffer ratio spike! Scaling edge delivery bitrates!");
+      setTimeout(() => {
+        flyCreatureTo("kalman", "📡 Innovation residual tracking player buffer health.");
+      }, 350);
+      break;
+
+    case "destructive_failover":
+    case "failover_crisis":
+      flyCreatureTo("warden", "🔒 High-impact failover held! NOC Operator sign-off required!");
+      setTimeout(() => {
+        flyCreatureTo("kalman", "⚠️ Primary cluster compromised! Telemetry breach active.");
+      }, 350);
+      setTimeout(() => {
+        flyCreatureTo("scribble", "🦉 Authoring cryptographically verified incident postmortem...");
+      }, 700);
+      break;
+
+    default:
+      flyCreatureTo("flux", "🌊 Traffic rebalance active across regional edges.");
+      setTimeout(() => {
+        flyCreatureTo("kalman", "📡 Kalman innovation filter nominal.");
+      }, 350);
+      break;
+  }
+}
+
 // --- Trigger Scenarios ---
 let _scenarioBusy = false;
 async function triggerScenario(scenario) {
   playSound("alarm");
   showToast(`Deploying chaos scenario: ${scenario}...`, "warn");
+  dispatchScenarioCreatures(scenario);
   try {
     const data = await safeFetchJson("/scenarios/trigger", {
       method: "POST",
