@@ -356,7 +356,7 @@ tests/test_version_lineage.py ..                                         [100%]
 
 ## 📜 License & Author
 
-* **Author**: Om Shukla (`omshukla24`)
+* **Author**: Om Shukla
 * **Project**: KALMAN CINEMA (House of Asura)
 * **Contest**: Google Cloud Agentic Cinema Hackathon — Grafana Labs Partner Track
 * **License**: MIT License
