@@ -1,0 +1,27 @@
+# Python & Environment
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.DS_Store
+*.exe
+scripts/*.exe
+
+# Sensitive Secrets & Private Keys
+.env
+*.env.*
+!.env.example
+*.pem
+*.key
+*.token
+
+# Local Scratch & Private Working Artifacts
+HANDOFF.md
+scratch/
+data-alloy/
+demo_video_script.html
+*.log

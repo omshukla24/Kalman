@@ -1,0 +1,29 @@
+// Grafana Alloy — scrape KALMAN (Cloud Run + Local) and remote_write to Grafana Cloud.
+
+prometheus.scrape "kalman" {
+	targets = [
+		{
+			"__address__"      = "kalman-u5io5xjhhq-uc.a.run.app:443",
+			"__scheme__"       = "https",
+			"__metrics_path__" = "/metrics",
+		},
+		{
+			"__address__" = "localhost:9109",
+		},
+	]
+	forward_to      = [prometheus.remote_write.gc.receiver]
+	scrape_interval = "5s"
+	scrape_timeout  = "4s"
+}
+
+prometheus.remote_write "gc" {
+	endpoint {
+		name = "hosted-prometheus"
+		url  = "https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push"
+
+		basic_auth {
+			username = env("GRAFANA_CLOUD_PROM_USER")
+			password = env("GRAFANA_CLOUD_PROM_TOKEN")
+		}
+	}
+}

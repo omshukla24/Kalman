@@ -1,0 +1,35 @@
+# Governor policy — separation of duties (KALMAN II).
+# No agent acts on the live system outside this allowlist.
+# Bounds are hard caps; anything marked requires_human returns approved=false
+# and enters the HITL pending queue until a human operator signs off.
+allowed_actions:
+  shift_cdn_traffic:
+    max: { pct: 25 }
+    requires_human: false
+    cooldown_s: 30
+    rollback_action: reset_traffic_split
+    description: "Shift CDN traffic fraction to alternate edge provider"
+  throttle_bitrate_ladder:
+    max: { steps: 2 }
+    requires_human: false
+    cooldown_s: 20
+    rollback_action: restore_bitrate_ladder
+    description: "Temporarily cap top rendition to clear rebuffer backlog"
+  scale_edge_capacity:
+    max: { nodes: 10 }
+    requires_human: false
+    cooldown_s: 45
+    rollback_action: scale_down_edge
+    description: "Autoscale edge egress worker nodes"
+  failover_to_backup_stream:
+    requires_human: true      # destructive: always needs human sign-off
+    cooldown_s: 120
+    description: "Fail over primary broadcast pipeline to redundant hot standby"
+  purge_cdn_cache:
+    requires_human: true      # destructive: causes origin thundering herd
+    cooldown_s: 60
+    description: "Invalidate edge cache across regional POPs"
+  restart_encoder_pod:
+    requires_human: true
+    cooldown_s: 60
+    description: "Soft restart of degraded transcode pod"
