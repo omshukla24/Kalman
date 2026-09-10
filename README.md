@@ -215,14 +215,14 @@ KALMAN uses mathematically rigorous filtering rather than arbitrary threshold gu
 
 | Concept | Formulation | Purpose & Implementation |
 |:---|:---|:---|
-| **State Prediction** | $\hat{x}_{k|k-1} = A \hat{x}_{k-1|k-1} + B u_k$ | Estimates expected signal level (5xx rate, buffer ratio) based on system dynamics. |
-| **Error Covariance** | $P_{k|k-1} = A P_{k-1|k-1} A^T + Q$ | Quantifies process uncertainty; $Q$ scales dynamically under broadcast load spikes. |
-| **Measurement Residual**| $y_k = z_k - H \hat{x}_{k|k-1}$ | Difference between real telemetry measurement $z_k$ and the model prediction. |
-| **Innovation Covariance**| $S_k = H P_{k|k-1} H^T + R_k$ | Total expected variance, incorporating adaptive measurement noise $R_k$. |
-| **Kalman Gain** | $K_k = P_{k|k-1} H^T S_k^{-1}$ | Computes optimal weighting between noisy sensor measurement and model state. |
+| **State Prediction** | $\hat{x}_{k\vert k-1} = A \hat{x}_{k-1\vert k-1} + B u_k$ | Estimates expected signal level (5xx rate, buffer ratio) based on system dynamics. |
+| **Error Covariance** | $P_{k\vert k-1} = A P_{k-1\vert k-1} A^T + Q$ | Quantifies process uncertainty; $Q$ scales dynamically under broadcast load spikes. |
+| **Measurement Residual**| $y_k = z_k - H \hat{x}_{k\vert k-1}$ | Difference between real telemetry measurement $z_k$ and the model prediction. |
+| **Innovation Covariance**| $S_k = H P_{k\vert k-1} H^T + R_k$ | Total expected variance, incorporating adaptive measurement noise $R_k$. |
+| **Kalman Gain** | $K_k = P_{k\vert k-1} H^T S_k^{-1}$ | Computes optimal weighting between noisy sensor measurement and model state. |
 | **Normalized Innovation Squared (NIS)** | $\epsilon_k = y_k^T S_k^{-1} y_k$ | Scalar anomaly metric. Evaluated against $\chi^2$ statistical threshold ($\epsilon_k > 3.5$). |
-| **Outlier State Freezing**| If $\epsilon_k > 9.0 \implies \hat{x}_{k|k} = \hat{x}_{k|k-1}$ | Prevents catastrophic outliers from corrupting the internal state estimate during an outage. |
-| **Recovery Convergence** | $|\epsilon_k| < 2.0$ for $N \ge 10$ ticks | Certifies system stabilization before resolving incidents and computing MTTR. |
+| **Outlier State Freezing**| If $\epsilon_k > 9.0 \implies \hat{x}_{k\vert k} = \hat{x}_{k\vert k-1}$ | Prevents catastrophic outliers from corrupting the internal state estimate during an outage. |
+| **Recovery Convergence** | $\vert \epsilon_k \vert < 2.0$ for $N \ge 10$ ticks | Certifies system stabilization before resolving incidents and computing MTTR. |
 
 ---
 
